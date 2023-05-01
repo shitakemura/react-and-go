@@ -1,15 +1,19 @@
 import { useState, FormEvent, Dispatch, SetStateAction } from 'react'
 import Input from './form/Input'
-import { useOutletContext } from 'react-router-dom'
+import { useNavigate, useOutletContext } from 'react-router-dom'
 
 function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
-  const { setJwtToken } = useOutletContext<{
-    jwtToken: string
-    setJwtToken: Dispatch<SetStateAction<string>>
-  }>()
+  const { setJwtToken, setAlertClassName, setAlertMessage } =
+    useOutletContext<{
+      setJwtToken: Dispatch<SetStateAction<string>>
+      setAlertClassName: Dispatch<SetStateAction<string>>
+      setAlertMessage: Dispatch<SetStateAction<string>>
+    }>()
+
+  const navigate = useNavigate()
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -17,6 +21,12 @@ function Login() {
 
     if (email === 'admin@example.com') {
       setJwtToken('abc')
+      setAlertClassName('d-none')
+      setAlertMessage('')
+      navigate('/')
+    } else {
+      setAlertClassName('alert-danger')
+      setAlertMessage('Invalid credentials')
     }
   }
 
