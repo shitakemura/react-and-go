@@ -16,10 +16,7 @@ function Movies() {
       }
 
       try {
-        const response = await fetch(
-          `http://localhost:8080/movies`,
-          requestOptions,
-        )
+        const response = await fetch(`api/movies`, requestOptions)
         const data = await response.json()
         setMovies(data)
       } catch (err) {
