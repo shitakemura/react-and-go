@@ -4,7 +4,8 @@
 
 
 #### libraries
-- routing: go-chi/chi/v5
+- routing: github.com/go-chi/chi/v5
+- db-driver: github.com/jackc/pgx/v4
 
 #### database
 - docker compose up -d / docker compose down
