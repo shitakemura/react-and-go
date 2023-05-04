@@ -25,7 +25,7 @@ func (m *PostgresDBRepo) AllMovies() ([]*models.Movie, error) {
 		select 
 			id, title, release_date, runtime,
 			mpaa_rating, description, coalesce(image, ''),
-			created_at, updated_at,
+			created_at, updated_at
 		from
 			movies
 		order by
