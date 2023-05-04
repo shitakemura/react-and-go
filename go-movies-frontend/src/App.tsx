@@ -8,9 +8,19 @@ function App() {
   const [alertClassName, setAlertClassName] = useState('d-none')
 
   const navigate = useNavigate()
-  const logOut = () => {
-    setJwtToken('')
-    navigate('/login')
+  const logOut = async () => {
+    try {
+      const requestOptions: RequestInit = {
+        method: 'GET',
+        credentials: 'include',
+      }
+      await fetch(`/api/logout`, requestOptions)
+      navigate('/login')
+    } catch (err) {
+      console.log('error logging out', err)
+    } finally {
+      setJwtToken('')
+    }
   }
 
   useEffect(() => {
