@@ -1,7 +1,13 @@
 GET http://localhost:8080/
 
 ###
-GET http://localhost:8080/authenticate
+POST http://localhost:8080/authenticate
+
+{
+    "email": "admin@example.com",
+    "password": "secret"
+
+}
 
 ###
 GET http://localhost:8080/movies
