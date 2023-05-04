@@ -15,18 +15,40 @@ function Login() {
 
   const navigate = useNavigate()
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    console.log('email/pass', email, password)
 
-    if (email === 'admin@example.com') {
-      setJwtToken('abc')
-      setAlertClassName('d-none')
-      setAlertMessage('')
-      navigate('/')
-    } else {
+    // build the request payload
+    let payload = {
+      email: email,
+      password: password,
+    }
+
+    const requestOptions: RequestInit = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(payload),
+    }
+
+    try {
+      const response = await fetch(`/api/authenticate`, requestOptions)
+      const data = await response.json()
+
+      if (data.error) {
+        setAlertClassName('alert-danger')
+        setAlertMessage(data.message)
+      } else {
+        setJwtToken(data.access_token)
+        setAlertClassName('d-none')
+        setAlertMessage('')
+        navigate('/')
+      }
+    } catch (err) {
       setAlertClassName('alert-danger')
-      setAlertMessage('Invalid credentials')
+      setAlertMessage((err as Error).message)
     }
   }
 
