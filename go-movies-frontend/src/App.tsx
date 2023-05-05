@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState, useEffect } from 'react'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 import Alert from './components/Alert'
 import { useAuth } from './hooks/useAuth'
@@ -11,56 +11,75 @@ function App() {
   const [alertMessage, setAlertMessage] = useState('')
   const [alertClassName, setAlertClassName] = useState('d-none')
 
-  const { accessToken, logout, refresh } = useAuth()
+  const { logout, refresh } = useAuth()
 
-  const [ticking, setTicking] = useState(false)
   const [tickInterval, setTickInterval] = useState<number | undefined>(
     undefined,
   )
 
   const navigate = useNavigate()
 
-  const handleLogout = () => {
-    logout(() => navigate('/login'))
+  const handleLogout = async () => {
+    try {
+      await logout()
+      navigate('/login')
+    } catch (error) {
+      console.log(`error logging out`, error)
+    } finally {
+      setJwtToken(null)
+      pollingRefresh(false)
+    }
   }
 
   const pollingRefresh = useCallback(
-    (status: boolean) => {
+    async (status: boolean) => {
       if (status) {
-        if (ticking) return
         console.log('turning on ticking!')
 
-        const i = setInterval(() => {
+        const i = setInterval(async () => {
           console.log('this will run every 10 minutes')
-          refresh()
+
+          try {
+            const data = await refresh()
+            if (data.access_token) {
+              setJwtToken(data.access_token)
+            }
+          } catch (error) {
+            console.log(`user is not logged in`)
+          }
         }, 600000)
 
         setTickInterval(i)
         console.log('setting tick interval to', i)
-        setTicking(true)
       } else {
         console.log('turning off ticking')
         console.log('turning off tickInterval', tickInterval)
 
         setTickInterval(undefined)
         clearInterval(tickInterval)
-        setTicking(false)
       }
     },
-    [tickInterval, ticking, refresh],
+    [tickInterval, refresh],
   )
 
   useEffect(() => {
+    const setJwtTokenIfExists = async () => {
+      try {
+        const data = await refresh()
+        if (data.access_token) {
+          setJwtToken(data.access_token)
+          pollingRefresh(true)
+        }
+      } catch (error) {
+        console.log('user is not logged in')
+      }
+    }
+
     if (!didInit) {
       didInit = true
-      refresh()
+      setJwtTokenIfExists()
     }
-  }, [refresh])
-
-  useEffect(() => {
-    setJwtToken(accessToken)
-    pollingRefresh(accessToken !== null)
-  }, [accessToken, pollingRefresh])
+  }, [refresh, pollingRefresh])
 
   return (
     <div className='container'>
