@@ -7,11 +7,12 @@ import { useAuth } from './hooks/useAuth'
 let didInit = false
 
 function App() {
-  const [jwtToken, setJwtToken] = useState<string | null>(null)
+  const [jwtToken, setJwtToken] = useState<string>('')
   const [alertMessage, setAlertMessage] = useState('')
   const [alertClassName, setAlertClassName] = useState('d-none')
 
   const { logout, refresh } = useAuth()
+  const [loading, setLoading] = useState(true)
 
   const [tickInterval, setTickInterval] = useState<number | undefined>(
     undefined,
@@ -26,7 +27,7 @@ function App() {
     } catch (error) {
       console.log(`error logging out`, error)
     } finally {
-      setJwtToken(null)
+      setJwtToken('')
       pollingRefresh(false)
     }
   }
@@ -65,6 +66,7 @@ function App() {
   useEffect(() => {
     const setJwtTokenIfExists = async () => {
       try {
+        setLoading(true)
         const data = await refresh()
         if (data.access_token) {
           setJwtToken(data.access_token)
@@ -72,6 +74,8 @@ function App() {
         }
       } catch (error) {
         console.log('user is not logged in')
+      } finally {
+        setLoading(false)
       }
     }
 
@@ -88,7 +92,7 @@ function App() {
           <h1 className='mt-3'>Go Watch a Movie!</h1>
         </div>
         <div className='col text-end'>
-          {jwtToken ? (
+          {jwtToken !== '' ? (
             <a href='#!' onClick={handleLogout}>
               <span className='badge bg-danger'>Logout</span>
             </a>
@@ -120,7 +124,7 @@ function App() {
               >
                 Genres
               </Link>
-              {jwtToken && (
+              {jwtToken !== '' && (
                 <>
                   <Link
                     to='/admin/movie/0'
@@ -147,15 +151,17 @@ function App() {
         </div>
         <div className='col-md-10'>
           <Alert message={alertMessage} className={alertClassName} />
-          <Outlet
-            context={{
-              jwtToken,
-              setJwtToken,
-              setAlertClassName,
-              setAlertMessage,
-              pollingRefresh,
-            }}
-          />
+          {!loading && (
+            <Outlet
+              context={{
+                jwtToken,
+                setJwtToken,
+                setAlertClassName,
+                setAlertMessage,
+                pollingRefresh,
+              }}
+            />
+          )}
         </div>
       </div>
     </div>
