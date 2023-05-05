@@ -38,8 +38,8 @@ export const useAuth = () => {
       setAccessToken(null)
       callback?.()
     } catch (err) {
-      if (error instanceof Error) {
-        setError(error)
+      if (err instanceof Error) {
+        setError(err)
       } else {
         setError(new Error('error logging out'))
       }

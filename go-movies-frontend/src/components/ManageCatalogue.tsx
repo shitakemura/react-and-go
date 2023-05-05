@@ -2,12 +2,14 @@ import { useEffect, useState } from 'react'
 import { Movie } from '../models/movie'
 import { Link, useNavigate, useOutletContext } from 'react-router-dom'
 
+// MEMO: https://react.dev/learn/you-might-not-need-an-effect#initializing-the-application
+let didInit = false
+
 function ManageCatalogue() {
   const [movies, setMovies] = useState<Movie[]>([])
   const { jwtToken } = useOutletContext<{ jwtToken: string | null }>()
   const navigate = useNavigate()
 
-  let didInit = false
   useEffect(() => {
     const getAllMovies = async () => {
       const headers = new Headers()

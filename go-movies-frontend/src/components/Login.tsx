@@ -20,7 +20,7 @@ function Login() {
     event.preventDefault()
 
     // build the request payload
-    let payload = {
+    const payload = {
       email: email,
       password: password,
     }

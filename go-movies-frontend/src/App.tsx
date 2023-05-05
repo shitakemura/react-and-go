@@ -3,6 +3,9 @@ import { Link, Outlet, useNavigate } from 'react-router-dom'
 import Alert from './components/Alert'
 import { useAuth } from './hooks/useAuth'
 
+// MEMO: https://react.dev/learn/you-might-not-need-an-effect#initializing-the-application
+let didInit = false
+
 function App() {
   const [jwtToken, setJwtToken] = useState<string | null>(null)
   const [alertMessage, setAlertMessage] = useState('')
@@ -44,23 +47,20 @@ function App() {
         setTicking(false)
       }
     },
-    [tickInterval],
+    [tickInterval, ticking, refresh],
   )
-
-  // ref: https://react.dev/learn/you-might-not-need-an-effect#initializing-the-application
-  let didInit = false
 
   useEffect(() => {
     if (!didInit) {
       didInit = true
       refresh()
     }
-  }, [])
+  }, [refresh])
 
   useEffect(() => {
     setJwtToken(accessToken)
     pollingRefresh(accessToken !== null)
-  }, [accessToken])
+  }, [accessToken, pollingRefresh])
 
   return (
     <div className='container'>
