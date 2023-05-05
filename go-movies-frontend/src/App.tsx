@@ -130,6 +130,7 @@ function App() {
           <Alert message={alertMessage} className={alertClassName} />
           <Outlet
             context={{
+              jwtToken,
               setJwtToken,
               setAlertClassName,
               setAlertMessage,
