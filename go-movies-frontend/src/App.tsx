@@ -1,100 +1,66 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 import Alert from './components/Alert'
+import { useAuth } from './hooks/useAuth'
 
 function App() {
-  const [jwtToken, setJwtToken] = useState('')
+  const [jwtToken, setJwtToken] = useState<string | null>(null)
   const [alertMessage, setAlertMessage] = useState('')
   const [alertClassName, setAlertClassName] = useState('d-none')
 
+  const { accessToken, logout, refresh } = useAuth()
+
+  const [ticking, setTicking] = useState(false)
   const [tickInterval, setTickInterval] = useState<number | undefined>(
     undefined,
   )
 
   const navigate = useNavigate()
-  const logOut = async () => {
-    try {
-      const requestOptions: RequestInit = {
-        method: 'GET',
-        credentials: 'include',
-      }
-      await fetch(`/api/logout`, requestOptions)
-      navigate('/login')
-    } catch (err) {
-      console.log('error logging out', err)
-    } finally {
-      setJwtToken('')
-      toggleRefresh(false)
-    }
+
+  const handleLogout = () => {
+    logout(() => navigate('/login'))
   }
 
-  const toggleRefresh = useCallback(
+  const pollingRefresh = useCallback(
     (status: boolean) => {
-      console.log('clicked')
-
       if (status) {
+        if (ticking) return
         console.log('turning on ticking!')
 
         const i = setInterval(() => {
           console.log('this will run every 10 minutes')
-          try {
-            const requestOptions: RequestInit = {
-              method: 'GET',
-              credentials: 'include',
-            }
-
-            const refresh = async () => {
-              const response = await fetch(`/api/refresh`, requestOptions)
-              const data = await response.json()
-              if (data.access_token) {
-                setJwtToken(data.access_token)
-              }
-            }
-
-            refresh()
-          } catch (err) {
-            console.log('user is not logged int')
-          }
+          refresh()
         }, 600000)
 
         setTickInterval(i)
-
         console.log('setting tick interval to', i)
+        setTicking(true)
       } else {
         console.log('turning off ticking')
         console.log('turning off tickInterval', tickInterval)
 
         setTickInterval(undefined)
         clearInterval(tickInterval)
+        setTicking(false)
       }
     },
     [tickInterval],
   )
 
+  // ref: https://react.dev/learn/you-might-not-need-an-effect#initializing-the-application
+  let didInit = false
+
   useEffect(() => {
-    const refresh = async () => {
-      try {
-        const requestOptions: RequestInit = {
-          method: 'GET',
-          credentials: 'include',
-        }
-
-        const response = await fetch(`/api/refresh`, requestOptions)
-        const data = await response.json()
-
-        if (data.access_token) {
-          setJwtToken(data.access_token)
-          toggleRefresh(true)
-        }
-      } catch (err) {
-        console.log('user is not logged in')
-      }
-    }
-
-    if (jwtToken === '') {
+    if (!didInit) {
+      didInit = true
       refresh()
     }
-  }, [jwtToken, toggleRefresh])
+  }, [])
+
+  useEffect(() => {
+    setJwtToken(accessToken)
+    pollingRefresh(accessToken !== null)
+  }, [accessToken])
 
   return (
     <div className='container'>
@@ -103,14 +69,14 @@ function App() {
           <h1 className='mt-3'>Go Watch a Movie!</h1>
         </div>
         <div className='col text-end'>
-          {jwtToken === '' ? (
+          {jwtToken ? (
+            <a href='#!' onClick={handleLogout}>
+              <span className='badge bg-danger'>Logout</span>
+            </a>
+          ) : (
             <Link to='/login'>
               <span className='badge bg-success'>Login</span>
             </Link>
-          ) : (
-            <a href='#!' onClick={logOut}>
-              <span className='badge bg-danger'>Logout</span>
-            </a>
           )}
         </div>
         <hr className='md-3'></hr>
@@ -135,7 +101,7 @@ function App() {
               >
                 Genres
               </Link>
-              {jwtToken !== '' && (
+              {jwtToken && (
                 <>
                   <Link
                     to='/admin/movie/0'
@@ -167,7 +133,7 @@ function App() {
               setJwtToken,
               setAlertClassName,
               setAlertMessage,
-              toggleRefresh,
+              pollingRefresh,
             }}
           />
         </div>
