@@ -1,8 +1,10 @@
 import { useState, FormEvent, Dispatch, SetStateAction } from 'react'
 import Input from './form/Input'
 import { useNavigate, useOutletContext } from 'react-router-dom'
+import { useAuth } from '../hooks/useAuth'
 
 function Login() {
+  const { login } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
@@ -25,19 +27,8 @@ function Login() {
       password: password,
     }
 
-    const requestOptions: RequestInit = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include',
-      body: JSON.stringify(payload),
-    }
-
     try {
-      const response = await fetch(`/api/authenticate`, requestOptions)
-      const data = await response.json()
-
+      const data = await login(payload)
       if (data.error) {
         setAlertClassName('alert-danger')
         setAlertMessage(data.message)

@@ -4,6 +4,20 @@ export type TokenPairs = {
 }
 
 export const useAuth = () => {
+  const login = async (payload: { email: string; password: string }) => {
+    const requestOptions: RequestInit = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(payload),
+    }
+    const response = await fetch(`/api/authenticate`, requestOptions)
+    const data = await response.json()
+    return data
+  }
+
   const refresh = async () => {
     const requestOptions: RequestInit = {
       method: 'GET',
@@ -23,6 +37,7 @@ export const useAuth = () => {
   }
 
   return {
+    login,
     logout,
     refresh,
   }
