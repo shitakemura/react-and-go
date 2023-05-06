@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"strings"
 	"time"
 )
 
@@ -21,6 +23,7 @@ type application struct {
 	JWTIssuer    string
 	JWTAudience  string
 	CookieDomain string
+	APIKey       string
 }
 
 func main() {
@@ -39,7 +42,16 @@ func main() {
 	flag.StringVar(&app.JWTAudience, "jwt-audience", "example.com", "signing audience")
 	flag.StringVar(&app.CookieDomain, "cookie-domain", "localhost", "cookie domain")
 	flag.StringVar(&app.Domain, "domain", "example.com", "domain")
+
+	// MEMO: https://mattn.kaoriya.net/software/lang/go/20170609110526.htm
+	flag.StringVar(&app.APIKey, "api-key", "", "api key") // set this by command line argument
+	flag.VisitAll(func(f *flag.Flag) {
+		if s := os.Getenv(strings.ToUpper(f.Name)); s != "" {
+			f.Value.Set(s)
+		}
+	})
 	flag.Parse()
+	fmt.Println("api-key:", app.APIKey)
 
 	// connect to the database
 	conn, err := app.connectToDB()
