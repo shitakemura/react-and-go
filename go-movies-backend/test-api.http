@@ -11,3 +11,7 @@ POST http://localhost:8080/authenticate
 
 ###
 GET http://localhost:8080/movies
+
+
+###
+GET http://localhost:8080/movies/1
