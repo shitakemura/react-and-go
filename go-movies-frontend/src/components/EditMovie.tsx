@@ -5,6 +5,7 @@ import Input from './form/Input'
 import Select from './form/Select'
 import TextArea from './form/TestArea'
 import Checkbox from './form/Checkbox'
+import Swal from 'sweetalert2'
 
 function EditMovie() {
   const navigate = useNavigate()
@@ -82,6 +83,34 @@ function EditMovie() {
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+
+    const required = [
+      { field: movie.title, name: 'title' },
+      { field: movie.release_date, name: 'release_date' },
+      { field: movie.runtime, name: 'runtime' },
+      { field: movie.description, name: 'description' },
+      { field: movie.mpaa_rating, name: 'mpaa_rating' },
+    ]
+
+    const errors = required
+      .filter((obj) => obj.field === '')
+      .map((obj) => obj.name)
+
+    if (movie.genres_array.length === 0) {
+      Swal.fire({
+        title: 'Error!',
+        text: 'You must choose at least one genre!',
+        icon: 'error',
+        confirmButtonText: 'OK',
+      })
+      setErrors([...errors, 'genres'])
+    } else {
+      setErrors(errors)
+    }
+
+    if (errors.length > 0) {
+      return
+    }
   }
 
   const handleChange = (
@@ -130,8 +159,7 @@ function EditMovie() {
     <div>
       <h2>Add/Edit Movie</h2>
       <hr />
-      <pre>{JSON.stringify(movie, null, 3)}</pre>
-
+      {/* <pre>{JSON.stringify(movie, null, 3)}</pre> */}
       <form onSubmit={handleSubmit}>
         <input type='hidden' name='id' value={movie.id} id='id' />
         <Input
@@ -164,10 +192,9 @@ function EditMovie() {
           value={movie.runtime}
           autoComplete=''
           onChange={handleChange}
-          errorDiv={hasError('release_date') ? 'text-danger' : 'd-none'}
+          errorDiv={hasError('runtime') ? 'text-danger' : 'd-none'}
           errorMsg='Please enter a runtime'
         />
-
         <Select
           title='MPAA Rating'
           name='mpaa_rating'
@@ -175,24 +202,20 @@ function EditMovie() {
           options={mpaaOptions}
           onChange={handleChange}
           placeHolder='Choose...'
-          errorDiv={hasError('mpaa_rating') ? 'test-danger' : 'd-none'}
+          errorDiv={hasError('mpaa_rating') ? 'text-danger' : 'd-none'}
           errorMsg='Please choose'
         />
-
         <TextArea
           title='Description'
           name='description'
           value={movie.description}
           rows={3}
           onChange={handleChange}
-          errorDiv={hasError('description') ? 'test-danger' : 'd-none'}
+          errorDiv={hasError('description') ? 'text-danger' : 'd-none'}
           errorMsg='Please enter a description'
         />
-
         <hr />
-
         <h3>Genres</h3>
-
         {movie.genres && movie.genres.length > 0 && (
           <>
             {movie.genres.map((g: Genre, index: number) => (
@@ -208,6 +231,8 @@ function EditMovie() {
             ))}
           </>
         )}
+        <hr />
+        <button className='btn btn-primary'>Save</button>
       </form>
     </div>
   )
