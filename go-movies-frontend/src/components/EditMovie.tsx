@@ -28,10 +28,12 @@ function EditMovie() {
   const [movie, setMovie] = useState<Movie>({
     id: 0,
     title: '',
+    image: '',
     release_date: '',
     runtime: '',
     mpaa_rating: '',
     description: '',
+    genres: [],
   })
 
   // get id from the URL
@@ -128,7 +130,6 @@ function EditMovie() {
         <hr />
 
         <h3>Genres</h3>
-        
       </form>
     </div>
   )
