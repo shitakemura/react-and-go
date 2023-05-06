@@ -7,9 +7,10 @@ export type Movie = {
   mpaa_rating: string
   description: string
   genres: Genre[]
+  genres_array: number[]
 }
 
-type Genre = {
+export type Genre = {
   id: number
   genre: string
   checked: boolean

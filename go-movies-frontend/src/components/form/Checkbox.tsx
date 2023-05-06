@@ -1,8 +1,9 @@
 import { ChangeEvent } from 'react'
 
 type Props = {
+  id: string
   name: string
-  value: string
+  value: number
   checked: boolean
   title: string
   onChange: (event: ChangeEvent<HTMLInputElement>) => void
@@ -12,7 +13,7 @@ function Checkbox(props: Props) {
   return (
     <div className='form-check'>
       <input
-        id={props.name}
+        id={props.id}
         className='form-check-input'
         type='checkbox'
         value={props.value}

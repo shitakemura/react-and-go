@@ -1,9 +1,10 @@
 import { ChangeEvent, FormEvent, useEffect, useState } from 'react'
 import { useNavigate, useOutletContext, useParams } from 'react-router-dom'
-import { Movie } from '../models/movie'
+import { Movie, Genre } from '../models/movie'
 import Input from './form/Input'
 import Select from './form/Select'
 import TextArea from './form/TestArea'
+import Checkbox from './form/Checkbox'
 
 function EditMovie() {
   const navigate = useNavigate()
@@ -34,6 +35,7 @@ function EditMovie() {
     mpaa_rating: '',
     description: '',
     genres: [],
+    genres_array: [],
   })
 
   // get id from the URL
@@ -45,6 +47,38 @@ function EditMovie() {
       return
     }
   }, [jwtToken, navigate])
+
+  useEffect(() => {
+    if (id) {
+      // edit an existing movie
+    } else {
+      // adding a movie
+      const headers = new Headers()
+      headers.append('Content-Type', 'application/json')
+
+      const getAllGenres = async () => {
+        try {
+          const requestOptions: RequestInit = {
+            method: 'GET',
+            headers: headers,
+          }
+
+          const response = await fetch(`/api/genres`, requestOptions)
+          const data = await response.json()
+
+          setMovie((prev) => ({
+            ...prev,
+            genres: data,
+            genres_array: [],
+          }))
+        } catch (error) {
+          console.log(error)
+        }
+      }
+
+      getAllGenres()
+    }
+  }, [id])
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -62,6 +96,34 @@ function EditMovie() {
       ...movie,
       [name]: value,
     })
+  }
+
+  const handleCheck = (
+    event: ChangeEvent<HTMLInputElement>,
+    position: number,
+  ) => {
+    console.log('handleCheck called')
+    console.log('value in handleCheck:', event.target.value)
+    console.log('checked is', event.target.checked)
+    console.log('position is', position)
+
+    const updatedGenres = movie.genres.map((g: Genre) => {
+      if (g.id === Number(event.target.value)) {
+        return { ...g, checked: event.target.checked }
+      } else {
+        return g
+      }
+    })
+
+    const updatedGenresArray = updatedGenres
+      .filter((g: Genre) => g.checked)
+      .map((g: Genre) => g.id)
+
+    setMovie((prev) => ({
+      ...prev,
+      genres: updatedGenres,
+      genres_array: updatedGenresArray,
+    }))
   }
 
   return (
@@ -130,6 +192,22 @@ function EditMovie() {
         <hr />
 
         <h3>Genres</h3>
+
+        {movie.genres && movie.genres.length > 0 && (
+          <>
+            {movie.genres.map((g: Genre, index: number) => (
+              <Checkbox
+                title={g.genre}
+                name='genre'
+                value={g.id}
+                checked={g.checked}
+                key={g.id}
+                id={'genre-' + index}
+                onChange={(event) => handleCheck(event, index)}
+              />
+            ))}
+          </>
+        )}
       </form>
     </div>
   )

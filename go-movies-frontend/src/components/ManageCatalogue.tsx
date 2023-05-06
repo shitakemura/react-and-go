@@ -19,7 +19,7 @@ function ManageCatalogue() {
       }
 
       try {
-        const response = await fetch(`api/admin/movies`, requestOptions)
+        const response = await fetch(`/api/admin/movies`, requestOptions)
         const data = await response.json()
         setMovies(data)
       } catch (err) {
