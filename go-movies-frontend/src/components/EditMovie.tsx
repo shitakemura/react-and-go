@@ -82,6 +82,7 @@ function EditMovie() {
 
           setMovie({
             ...data.movie,
+            id: Number(id ?? '0'),
             release_date: new Date(data.movie.release_date)
               .toISOString()
               .split('T')[0],
@@ -110,6 +111,7 @@ function EditMovie() {
 
           setMovie((prev) => ({
             ...prev,
+            id: Number(id ?? '0'),
             genres: data,
             genres_array: [],
           }))
@@ -235,6 +237,43 @@ function EditMovie() {
     }))
   }
 
+  const confirmDelete = async () => {
+    const result = await Swal.fire({
+      title: 'Delete movie?',
+      text: 'You cannot undo this action!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!',
+    })
+
+    if (result.isConfirmed) {
+      try {
+        const headers = new Headers()
+        headers.append('Authorization', 'Bearer ' + jwtToken)
+        const requestOptions: RequestInit = {
+          method: 'DELETE',
+          headers: headers,
+        }
+
+        const response = await fetch(
+          `/api/admin/movies/${movie.id}`,
+          requestOptions,
+        )
+        const data = await response.json()
+
+        if (data.error) {
+          console.log(data.error)
+        } else {
+          navigate('/manage-catalogue')
+        }
+      } catch (error) {
+        console.log(error)
+      }
+    }
+  }
+
   if (error) return <div>Error: {error.message}</div>
 
   return (
@@ -315,6 +354,15 @@ function EditMovie() {
         )}
         <hr />
         <button className='btn btn-primary'>Save</button>
+        {movie.id > 0 && (
+          <a
+            href='#!'
+            className='btn btn-danger ms-2'
+            onClick={confirmDelete}
+          >
+            Delete Movie
+          </a>
+        )}
       </form>
     </div>
   )
