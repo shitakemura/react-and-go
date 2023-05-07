@@ -11,7 +11,7 @@ function EditMovie() {
   const navigate = useNavigate()
   const { jwtToken } = useOutletContext<{ jwtToken: string }>()
 
-  const [error, setError] = useState<Error | null>(null)
+  const [error, setError] = useState<string | null>(null)
   const [errors, setErrors] = useState<string[]>([])
 
   const mpaaOptions = [
@@ -52,13 +52,54 @@ function EditMovie() {
   useEffect(() => {
     if (id) {
       // edit an existing movie
+      const getMovieForEdit = async () => {
+        try {
+          const headers = new Headers()
+          headers.append('Content-Type', 'application/json')
+          headers.append('Authorization', 'Bearer ' + jwtToken)
+
+          const requestOptions: RequestInit = {
+            method: 'GET',
+            headers: headers,
+          }
+
+          const response = await fetch(
+            `/api/admin/movies/${id}`,
+            requestOptions,
+          )
+          if (response.status !== 200) {
+            setError('Invalid response code: ' + response.status)
+          }
+          const data = await response.json()
+
+          const genres: Genre[] = data.genres.map((g: Genre) => {
+            if (data.movie.genres_array.includes(g.id)) {
+              return { ...g, checked: true }
+            } else {
+              return { ...g, checked: false }
+            }
+          })
+
+          setMovie({
+            ...data.movie,
+            release_date: new Date(data.movie.release_date)
+              .toISOString()
+              .split('T')[0],
+            genres: genres,
+          })
+        } catch (error) {
+          console.log(error)
+        }
+      }
+
+      getMovieForEdit()
     } else {
       // adding a movie
-      const headers = new Headers()
-      headers.append('Content-Type', 'application/json')
-
       const getAllGenres = async () => {
         try {
+          const headers = new Headers()
+          headers.append('Content-Type', 'application/json')
+
           const requestOptions: RequestInit = {
             method: 'GET',
             headers: headers,
@@ -79,7 +120,7 @@ function EditMovie() {
 
       getAllGenres()
     }
-  }, [id])
+  }, [id, jwtToken])
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
