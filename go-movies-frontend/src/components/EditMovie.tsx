@@ -81,7 +81,7 @@ function EditMovie() {
     }
   }, [id])
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
     const required = [
@@ -110,6 +110,45 @@ function EditMovie() {
 
     if (errors.length > 0) {
       return
+    }
+
+    // passed validation, so save changes
+    try {
+      const headers = new Headers()
+      headers.append('Content-Type', 'application/json')
+      headers.append('Authorization', 'Bearer ' + jwtToken)
+
+      // assume we are adding a new movie
+      let method = 'PUT'
+      if (movie.id > 0) {
+        method = 'PATCH'
+      }
+
+      const requestOptions: RequestInit = {
+        // we need to convert the values in JSON for release date (to date) and runtime (to int)
+        body: JSON.stringify({
+          ...movie,
+          release_date: new Date(movie.release_date),
+          runtime: Number(movie.runtime),
+        }),
+        method: method,
+        headers: headers,
+        credentials: 'include',
+      }
+
+      const response = await fetch(
+        `/api/admin/movies/${id ?? 0}`,
+        requestOptions,
+      )
+      const data = await response.json()
+
+      if (data.error) {
+        console.log(data.error)
+      } else {
+        navigate('/manage-catalogue')
+      }
+    } catch (error) {
+      console.log(error)
     }
   }
 
