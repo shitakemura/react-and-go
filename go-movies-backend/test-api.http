@@ -18,3 +18,6 @@ GET http://localhost:8080/movies/1
 
 ###
 GET http://localhost:8080/genres
+
+###
+GET http://localhost:8080/movies/genres/5
