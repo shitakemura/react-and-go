@@ -11,7 +11,7 @@ function EditMovie() {
   const navigate = useNavigate()
   const { jwtToken } = useOutletContext<{ jwtToken: string }>()
 
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<Error | null>(null)
   const [errors, setErrors] = useState<string[]>([])
 
   const mpaaOptions = [
@@ -68,7 +68,7 @@ function EditMovie() {
             requestOptions,
           )
           if (response.status !== 200) {
-            setError('Invalid response code: ' + response.status)
+            setError(new Error('Invalid response code: ' + response.status))
           }
           const data = await response.json()
 
@@ -234,6 +234,8 @@ function EditMovie() {
       genres_array: updatedGenresArray,
     }))
   }
+
+  if (error) return <div>Error: {error.message}</div>
 
   return (
     <div>
