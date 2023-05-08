@@ -1,6 +1,7 @@
 package main
 
 import (
+	"backend/internal/graph"
 	"backend/internal/models"
 	"encoding/json"
 	"errors"
@@ -358,4 +359,32 @@ func (app *application) DeleteMovie(w http.ResponseWriter, r *http.Request) {
 	}
 
 	app.writeJSON(w, http.StatusAccepted, resp)
+}
+
+func (app *application) MoviesGraphQL(w http.ResponseWriter, r *http.Request) {
+	// populate graph type with the movies
+	movies, _ := app.DB.AllMovies()
+
+	// get the query from the request
+	q, _ := io.ReadAll(r.Body)
+	query := string(q)
+
+	// create a new variable of type *graph.Graph
+	g := graph.New(movies)
+
+	// set the query string on the variable
+	g.QueryString = query
+
+	// perform the query
+	resp, err := g.Query()
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	// send the request
+	j, _ := json.MarshalIndent(resp, "", "\t")
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(j)
 }
