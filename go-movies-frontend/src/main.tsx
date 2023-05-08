@@ -12,6 +12,7 @@ import ManageCatalogue from './components/ManageCatalogue.tsx'
 import GraphQL from './components/GraphQL.tsx'
 import Login from './components/Login.tsx'
 import Movie from './components/Movie.tsx'
+import Genre from './components/Genre.tsx'
 
 const router = createBrowserRouter([
   {
@@ -23,6 +24,7 @@ const router = createBrowserRouter([
       { path: '/movies', element: <Movies /> },
       { path: '/movies/:id', element: <Movie /> },
       { path: '/genres', element: <Genres /> },
+      { path: '/genres/:id', element: <Genre /> },
       { path: '/admin/movie/0', element: <EditMovie /> },
       { path: '/admin/movie/:id', element: <EditMovie /> },
       { path: '/manage-catalogue', element: <ManageCatalogue /> },
