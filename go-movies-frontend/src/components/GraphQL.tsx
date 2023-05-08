@@ -8,8 +8,6 @@ function GraphQL() {
   const [searchTerm, setSearchTerm] = useState('')
   const [fullList, setFullList] = useState([])
 
-  const performSearch = () => {}
-
   useEffect(() => {
     const getMoviesList = async () => {
       try {
@@ -46,13 +44,55 @@ function GraphQL() {
     getMoviesList()
   }, [])
 
-  const handleChange = (event: ChangeEvent<HTMLInputElement>) => null
+  const performSearch = async () => {
+    try {
+      const payload = `
+      {
+        search(titleContains: "${searchTerm}") {
+          id
+          title
+          runtime
+          release_date
+          mpaa_rating
+        }
+      }`
+
+      const headers = new Headers()
+      headers.append('Content-Type', 'application/json')
+
+      const requestOptions: RequestInit = {
+        method: 'POST',
+        headers: headers,
+        body: payload,
+      }
+
+      const response = await fetch(`/api/graph`, requestOptions)
+      const { data } = await response.json()
+
+      setMovies(data.search)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    event.preventDefault()
+
+    const termValue = event.target.value
+    setSearchTerm(termValue)
+
+    if (termValue.length > 2) {
+      performSearch()
+    } else {
+      setMovies(fullList)
+    }
+  }
 
   return (
     <div>
       <h2>GraphQL</h2>
       <hr />
-      <form onSubmit={() => {}}>
+      <form>
         <Input
           title='Search'
           type='search'
