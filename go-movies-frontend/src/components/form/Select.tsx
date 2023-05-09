@@ -29,7 +29,7 @@ function Select(props: Props) {
         value={props.value}
         onChange={props.onChange}
       >
-        <option value=''>{props.placeHolder}</option>
+        <option>{props.placeHolder}</option>
         {props.options.map((option) => {
           return (
             <option key={option.id} value={option.id}>

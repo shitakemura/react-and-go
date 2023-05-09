@@ -289,7 +289,7 @@ function EditMovie() {
           type='text'
           name='title'
           value={movie.title}
-          autoComplete=''
+          autoComplete='title'
           onChange={handleChange}
           errorDiv={hasError('title') ? 'text-danger' : 'd-none'}
           errorMsg='Please enter a title'
@@ -300,7 +300,7 @@ function EditMovie() {
           type='date'
           name='release_date'
           value={movie.release_date}
-          autoComplete=''
+          autoComplete='release-date'
           onChange={handleChange}
           errorDiv={hasError('release_date') ? 'text-danger' : 'd-none'}
           errorMsg='Please enter a release date'
@@ -311,7 +311,7 @@ function EditMovie() {
           type='text'
           name='runtime'
           value={movie.runtime}
-          autoComplete=''
+          autoComplete='runtime'
           onChange={handleChange}
           errorDiv={hasError('runtime') ? 'text-danger' : 'd-none'}
           errorMsg='Please enter a runtime'

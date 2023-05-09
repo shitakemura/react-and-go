@@ -98,7 +98,7 @@ function GraphQL() {
           type='search'
           name='search'
           className='form-control'
-          autoComplete=''
+          autoComplete='search-term'
           value={searchTerm}
           onChange={handleChange}
         />
