@@ -50,7 +50,7 @@ function App() {
           }
         }, 600000)
 
-        setTickInterval(i)
+        setTickInterval(Number(i))
         console.log('setting tick interval to', i)
       } else {
         console.log('turning off ticking')
