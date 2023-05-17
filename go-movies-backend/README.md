@@ -1,6 +1,6 @@
 ## Go movies Backend App
 
-- go run ./cmd/app -api-key "set your api key from themoviedb.org"
+- go run ./cmd/api -api-key "set your api key from themoviedb.org"
 
 
 #### libraries
